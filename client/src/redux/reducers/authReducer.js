@@ -5,6 +5,9 @@ const {
   CLEAR_ERROR_REQUEST,
   CLEAR_ERROR_SUCCESS,
   CLEAR_ERROR_FAILURE,
+  LOGOUT_REQUEST,
+  LOGOUT_SUCESS,
+  LOGOUT_FAILURE,
 } = require("../types");
 
 const initialState = {
@@ -22,6 +25,7 @@ const initialState = {
 const authReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOGIN_REQUEST:
+    case LOGOUT_REQUEST:
       return {
         ...state,
         errorMsg: "",
@@ -38,7 +42,18 @@ const authReducer = (state = initialState, action) => {
         userRole: action.payload.user.role,
         errorMsg: "",
       };
+    case LOGOUT_SUCESS:
+      return {
+        token: null,
+        user: null,
+        userId: null,
+        isAuthenticated: false,
+        isLoading: false,
+        userRole: null,
+        errorMsg: "",
+      };
     case LOGIN_FAILURE:
+    case LOGOUT_FAILURE:
       localStorage.removeItem("token");
       return {
         ...state,
