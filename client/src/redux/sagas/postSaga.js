@@ -1,7 +1,11 @@
-import axios from 'axios';
-import { call, put, takeEvery, all, fork } from 'redux-saga/effects';
-import { push } from 'connected-react-router';
-import { POSTS_LOADING_SUCCESS, POSTS_LOADING_FAILURE, POSTS_LOADING_REQUEST } from '../types';
+import axios from "axios";
+import { call, put, takeEvery, all, fork } from "redux-saga/effects";
+import { push } from "connected-react-router";
+import {
+  POSTS_LOADING_SUCCESS,
+  POSTS_LOADING_FAILURE,
+  POSTS_LOADING_REQUEST,
+} from "../types";
 
 const loadPostAPI = () => {
   return axios.get("/api/post");
@@ -15,21 +19,19 @@ function* loadPosts() {
       type: POSTS_LOADING_SUCCESS,
       payload: result.data,
     });
-  } catch(e) {
+  } catch (e) {
     yield put({
       type: POSTS_LOADING_FAILURE,
-      payload: e
+      payload: e,
     });
     yield push("/");
   }
-} 
+}
 
 function* watchLoadPosts() {
   yield takeEvery(POSTS_LOADING_REQUEST, loadPosts);
 }
 
 export default function* postSaga() {
-  yield all([
-    fork(watchLoadPosts),
-  ]);
+  yield all([fork(watchLoadPosts)]);
 }
