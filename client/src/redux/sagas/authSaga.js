@@ -18,6 +18,8 @@ import {
   CLEAR_ERROR_REQUEST,
 } from "../types";
 
+// Login
+
 const loginUserAPI = (loginData) => {
   console.log(loginData, "loginData");
   const config = {
@@ -73,7 +75,7 @@ const registerUserAPI = (req) => {
   return axios.post("api/user", req);
 };
 
-const registerUser = (action) => {
+function* registerUser(action) {
   try {
     const result = yield call(registerUserAPI, action.payload);
     console.log(result, "RegisterUser Data");
@@ -84,10 +86,10 @@ const registerUser = (action) => {
   } catch (e) {
     yield put({
       type: REGISTER_FAILURE,
-      payload: e.response
+      payload: e.response,
     });
   }
-};
+}
 
 function* watchRegisterUser() {
   yield takeEvery(REGISTER_REQUEST, registerUser);
@@ -111,6 +113,8 @@ function* clearError() {
 function* watchClearError() {
   yield takeEvery(CLEAR_ERROR_REQUEST, clearError);
 }
+
+// UserLoading
 
 const userLoadingAPI = (token) => {
   console.log(token);
