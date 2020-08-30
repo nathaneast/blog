@@ -1,19 +1,28 @@
 import axios from "axios";
 import { put, fork, call, takeEvery, all } from "redux-saga/effects";
 import {
-  LOGIN_SUCESS,
+  LOGIN_SUCCESS,
   LOGIN_FAILURE,
   LOGIN_REQUEST,
-  LOGOUT_SUCESS,
+  LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
   LOGOUT_REQUEST,
+  USER_LOADING_SUCCESS,
+  USER_LOADING_FAILURE,
+  USER_LOADING_REQUEST,
+  REGISTER_SUCCESS,
+  REGISTER_FAILURE,
+  REGISTER_REQUEST,
+  CLEAR_ERROR_SUCCESS,
+  CLEAR_ERROR_FAILURE,
+  CLEAR_ERROR_REQUEST,
 } from "../types";
 
 const loginUserAPI = (loginData) => {
   console.log(loginData, "loginData");
   const config = {
     headers: {
-      "Contetn-Type": "application/json",
+      "Content-Type": "application/json",
     },
   };
   return axios.post("api/auth", loginData, config);
@@ -24,7 +33,7 @@ function* loginUser(action) {
     const result = yield call(loginUserAPI, action.payload);
     console.log(result);
     yield put({
-      type: LOGIN_SUCESS,
+      type: LOGIN_SUCCESS,
       payload: result.data,
     });
   } catch (e) {
@@ -42,7 +51,7 @@ function* watchLoginUser() {
 function* logout(action) {
   try {
     yield put({
-      type: LOGOUT_SUCESS,
+      type: LOGOUT_SUCCESS,
     });
   } catch (e) {
     yield put({
@@ -56,6 +65,93 @@ function* watchLogout() {
   yield takeEvery(LOGOUT_REQUEST, logout);
 }
 
+// Register
+
+// const registerUserAPI = (req) => {
+//   console.log(req, "req");
+
+//   return axios.post("api/user", req);
+// };
+
+// const registerUser = (action) => {
+//   try {
+//     const result = yield call(registerUserAPI, action.payload);
+//     console.log(result, "RegisterUser Data");
+//     yield put({
+//       type: REGISTER_SUCCESS,
+//       payload: result.data,
+//     });
+//   } catch (e) {
+//     yield put({
+//       type: REGISTER_FAILURE,
+//       payload: e.response
+//     });
+//   }
+// };
+
+// function* watchRegisterUser() {
+//   yield takeEvery(REGISTER_REQUEST, registerUser);
+// }
+
+// clear Error
+
+function* clearError() {
+  try {
+    yield put({
+      type: CLEAR_ERROR_SUCCESS,
+    });
+  } catch (e) {
+    yield put({
+      type: CLEAR_ERROR_FAILURE,
+    });
+    console.error(e);
+  }
+}
+
+function* watchClearError() {
+  yield takeEvery(CLEAR_ERROR_REQUEST, clearError);
+}
+
+const userLoadingAPI = (token) => {
+  console.log(token);
+  const config = {
+    headers: {
+      "Contetn-Type": "application/json",
+    },
+  };
+  if (token) {
+    config.headers["x-auth-token"] = token;
+  }
+  return axios.get("api/auth/user", config);
+};
+
+function* userLoading(action) {
+  try {
+    console.log(action, "userLoading");
+    const result = yield call(userLoadingAPI, action.payload);
+    console.log(result);
+    yield put({
+      type: USER_LOADING_SUCCESS,
+      payload: result.data,
+    });
+  } catch (e) {
+    yield put({
+      type: USER_LOADING_FAILURE,
+      payload: e.response,
+    });
+  }
+}
+
+function* watchUserLoading() {
+  yield takeEvery(USER_LOADING_REQUEST, userLoading);
+}
+
 export default function* authSaga() {
-  yield all([fork(watchLoginUser), fork(watchLogout)]);
+  yield all([
+    fork(watchLoginUser),
+    fork(watchLogout),
+    // fork(watchRegisterUser),
+    // fork(watchClearError),
+    fork(watchUserLoading),
+  ]);
 }
