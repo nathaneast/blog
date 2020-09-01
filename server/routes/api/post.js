@@ -24,7 +24,7 @@ const uploadS3 = multer({
   storage: multerS3({
     s3,
     bucket: "nathansideproject/upload",
-    region: "ap-northeast",
+    region: "ap-northeast-2",
     key(req, file, cb) {
       const ext = path.extname(file.originalname);
       const basename = path.basename(file.originalname, ext);
@@ -40,10 +40,7 @@ const uploadS3 = multer({
 
 router.post("/image", uploadS3.array("upload", 5), async (req, res, next) => {
   try {
-    console.log(
-      req,
-      files.map((v) => v.location)
-    );
+    console.log(req.files.map((v) => v.location));
     res.json({ uploaded: true, url: req.files.map((v) => v.location) });
   } catch (e) {
     console.error(e);

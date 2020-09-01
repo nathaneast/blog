@@ -10,7 +10,6 @@ import {
   POST_DELETE_REQUEST,
   USER_LOADING_REQUEST,
 } from "../../redux/types";
-import Link from "@ckeditor/ckeditor5-link/src/link";
 
 const PostDetail = (req) => {
   const dispatch = useDispatch();
