@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Form,
   FormGroup,
@@ -15,6 +15,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-editor-classic/src/classiceditor"
 import { editorConfiguration } from "../../components/editor/EditorConfig";
 import MyInit from "../../components/editor/UploadAdapter";
 import dotenv from "dotenv";
+import { POST_UPLOADING_REQUEST } from "../../redux/types";
 dotenv.config();
 
 const PostWrite = () => {
@@ -24,7 +25,7 @@ const PostWrite = () => {
     contents: "",
     fileUrl: "",
   });
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const onChange = (e) => {
     setValues({
@@ -76,15 +77,21 @@ const PostWrite = () => {
     }
   };
 
-  // const onSubmit = async (e) => {
-  //   await e.preventDefault();
-  //   const { title, contents, fileUrl, category } = form;
-  // };
+  const onSubmit = async (e) => {
+    await e.preventDefault();
+    const { title, contents, fileUrl, category } = form;
+    const token = localStorage.getItem("token");
+    const body = { title, contents, fileUrl, category, token };
+    dispatch({
+      type: POST_UPLOADING_REQUEST,
+      payload: body,
+    });
+  };
 
   return (
     <div>
       {isAuthenticated ? (
-        <Form>
+        <Form onSubmit={onSubmit}>
           <FormGroup className="mb-3">
             <Label for="title">Title</Label>
             <Input

@@ -62,12 +62,12 @@ router.get("/", async (req, res) => {
 router.post("/", auth, uploadS3.none(), async (req, res, next) => {
   try {
     console.log(req, "req");
-    const { title, content, fileUrl, creator, category } = req.body;
+    const { title, content, fileUrl, category } = req.body;
     const newPost = await Post.create({
       title,
       content,
       fileUrl,
-      creator,
+      creator: req.user.id,
       date: moment().format("YYYY-MM-DD hh:mm:ss"),
     });
 
@@ -105,8 +105,8 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
         },
       });
     }
+    res.json(newPost);
     return res.redirect(`/api/post/${newPost._id}`);
-    // res.json(newPost);
   } catch (e) {
     console.log(e);
   }

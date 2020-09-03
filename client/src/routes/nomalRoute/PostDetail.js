@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {} from "react-helmet";
+import { Helmet } from "react-helmet";
 import { Row, Col, Button } from "reactstrap";
 import { Link } from "react-router-dom";
 import CKEditor from "@ckeditor/ckeditor5-react";
@@ -10,6 +10,7 @@ import {
   POST_DELETE_REQUEST,
   USER_LOADING_REQUEST,
 } from "../../redux/types";
+import { GrowingSpinner } from "../../components/spinner/Spinner";
 
 const PostDetail = (req) => {
   const dispatch = useDispatch();
@@ -29,7 +30,7 @@ const PostDetail = (req) => {
       type: USER_LOADING_REQUEST,
       payload: localStorage.getItem("token"),
     });
-  });
+  }, []);
 
   const onDeleteClick = () => {
     dispatch({
@@ -78,7 +79,14 @@ const PostDetail = (req) => {
     </>
   );
 
-  return <h1>PostDetail</h1>;
+  const Body = <>{userId === creatorId ? EditButton : HomeButton}</>;
+
+  return (
+    <div>
+      <Helmet title={`Post | ${title}`} />
+      {loading === true ? GrowingSpinner : Body}
+    </div>
+  );
 };
 
 export default PostDetail;
