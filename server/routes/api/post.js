@@ -5,6 +5,7 @@ import Post from "../../models/post";
 import User from "../../models/user";
 import Category from "../../models/category";
 import Comment from "../../models/comment";
+
 import "@babel/polyfill";
 import auth from "../../middleware/auth";
 import moment from "moment";
@@ -52,11 +53,26 @@ router.post("/image", uploadS3.array("upload", 5), async (req, res, next) => {
   }
 });
 
-// api/post
-router.get("/", async (req, res) => {
-  const postFindResult = await Post.find();
-  console.log(postFindResult, "All Post get");
-  res.json(postFindResult);
+//  @route    GET api/post
+//  @desc     More Loading Posts
+//  @access   public
+
+router.get("/skip/:skip", async (req, res) => {
+  try {
+    const postCount = await Post.countDocuments();
+    const postFindResult = await Post.find()
+      .skip(Number(req.params.skip))
+      .limit(6)
+      .sort({ date: -1 });
+
+    const categoryFindResult = await Category.find();
+    const result = { postFindResult, categoryFindResult, postCount };
+
+    res.json(result);
+  } catch (e) {
+    console.log(e);
+    res.json({ msg: "더 이상 포스트가 없습니다" });
+  }
 });
 
 // @route    POST api/post
@@ -65,9 +81,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", auth, uploadS3.none(), async (req, res, next) => {
   try {
-    console.log(req.body, "req_body");
-    console.log(req.user, "req_user_id");
-    const { title, contents, fileUrl, category } = req.body;
+    const { title, contents, fileUrl, creator, category } = req.body;
     const newPost = await Post.create({
       title,
       contents,
@@ -80,7 +94,7 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
       categoryName: category,
     });
 
-    console.log(findResult, "Find Result!!!!", isNullOrUndefined(findResult));
+    console.log(findResult, "Find Result!!!!");
 
     if (isNullOrUndefined(findResult)) {
       const newCategory = await Category.create({
@@ -183,6 +197,32 @@ router.post("/:id/comments", async (req, res, next) => {
     console.log(e);
     next(e);
   }
+});
+
+// @route    Delete api/post/:id
+// @desc     Delete a Post
+// @access   Private
+
+router.delete("/:id", auth, async (req, res) => {
+  await Post.deleteMany({ _id: req.params.id });
+  await Comment.deleteMany({ post: req.params.id });
+  await User.findByIdAndUpdate(req.user.id, {
+    $pull: {
+      posts: req.params.id,
+      comments: { post_id: req.params.id },
+    },
+  });
+  const CategoryUpdateResult = await Category.findOneAndUpdate(
+    { posts: req.params.id },
+    { $pull: { posts: req.params.id } },
+    { new: true }
+  );
+
+  if (CategoryUpdateResult.posts.length === 0) {
+    await Category.deleteMany({ _id: CategoryUpdateResult });
+  }
+
+  return res.json({ success: true });
 });
 
 export default router;

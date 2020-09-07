@@ -136,7 +136,7 @@ const PostDetail = (req) => {
                 ? comments.map(
                     ({ contents, creator, date, _id, creatorName }) => (
                       <div key={_id}>
-                        <Row className="justify-content-between p2">
+                        <Row className="justify-content-between p-2">
                           <div className="font-weight-bold">
                             {creatorName ? creatorName : creator}
                           </div>

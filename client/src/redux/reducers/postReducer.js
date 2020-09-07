@@ -20,6 +20,9 @@ import {
   SEARCH_REQUEST,
   SEARCH_SUCCESS,
   SEARCH_FAILURE,
+  POST_UPLOADING_REQUEST,
+  POST_UPLOADING_SUCCESS,
+  POST_UPLOADING_FAILURE,
 } from "../types";
 
 const initialState = {
@@ -41,7 +44,6 @@ export default function (state = initialState, action) {
     case POST_LOADING_REQUEST:
       return {
         ...state,
-
         loading: true,
       };
     case POST_LOADING_SUCCESS:
@@ -69,6 +71,24 @@ export default function (state = initialState, action) {
         loading: false,
       };
     case POST_WRITE_FAILURE:
+      return {
+        ...state,
+        error: action.payload,
+        loading: false,
+      };
+    case POST_UPLOADING_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case POST_UPLOADING_SUCCESS:
+      return {
+        ...state,
+        posts: action.payload,
+        isAuthenticated: true,
+        loading: false,
+      };
+    case POST_UPLOADING_FAILURE:
       return {
         ...state,
         error: action.payload,

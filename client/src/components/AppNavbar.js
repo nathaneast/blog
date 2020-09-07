@@ -10,11 +10,10 @@ import {
   Button,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-
-import { LOGOUT_REQUEST } from "../redux/types";
+import { useSelector, useDispatch } from "react-redux";
+import { LOGOUT_REQUEST, POST_WRITE_REQUEST } from "../redux/types";
 import LoginModal from "../components/auth/LoginModal";
-import RegisterModal from "./auth/RegisterModal";
+import RegisterModal from "../components/auth/RegisterModal";
 
 const AppNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +21,8 @@ const AppNavbar = () => {
     (state) => state.auth
   );
 
-  console.log(userRole, "UserRole");
+  console.log(userRole, "App nav bar");
+  console.log(isAuthenticated, "isAuthenticated");
 
   const dispatch = useDispatch();
 
@@ -40,15 +40,19 @@ const AppNavbar = () => {
     setIsOpen(!isOpen);
   };
 
-  const addPostClick = () => {};
+  const addPostClick = () => {
+    dispatch({
+      type: POST_WRITE_REQUEST,
+    });
+  };
 
   const authLink = (
     <>
       <NavItem>
-        {userRole === "mainJuin" ? (
+        {userRole === "MainJuin" ? (
           <Form className="col mt-2">
             <Link
-              to="post"
+              to="/post"
               className="btn btn-success block text-white px-3"
               onClick={addPostClick}
             >
@@ -59,12 +63,12 @@ const AppNavbar = () => {
           ""
         )}
       </NavItem>
-      <NavItem className="d-flex justicy-content-center">
+      <NavItem className="d-flex justify-content-center">
         <Form className="col mt-2">
           {user && user.name ? (
             <Link to="#">
               <Button outline color="light" className="px-3" block>
-                <strong>{user ? `Welecome ${user.name}` : ""}</strong>
+                <strong>{user ? `Welcome ${user.name}` : ""}</strong>
               </Button>
             </Link>
           ) : (
@@ -99,14 +103,14 @@ const AppNavbar = () => {
 
   return (
     <>
-      <Navbar color="dark" expand="lg" className="sticky-top">
+      <Navbar color="dark" dark expand="lg" className="sticky-top">
         <Container>
           <Link to="/" className="text-white text-decoration-none">
             Side Project's blog nathan 블로그
           </Link>
           <NavbarToggler onClick={handleToggle} />
           <Collapse isOpen={isOpen} navbar>
-            <Nav className="ml-auto d-flex justify-content-around" navbar>
+            <Nav className="ml-auto d-felx justify-content-around" navbar>
               {isAuthenticated ? authLink : guestLink}
             </Nav>
           </Collapse>

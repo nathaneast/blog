@@ -11,7 +11,7 @@ const PostCardList = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch({ type: POST_LOADING_REQUEST });
+    dispatch({ type: POST_LOADING_REQUEST, payload: 0 });
   }, [dispatch]);
 
   return (

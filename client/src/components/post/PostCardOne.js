@@ -13,6 +13,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMouse } from "@fortawesome/free-solid-svg-icons";
 
 const PostCardOne = ({ posts }) => {
+  console.log("PostCardOne", posts);
+
   return (
     <>
       {Array.isArray(posts)
@@ -27,7 +29,7 @@ const PostCardOne = ({ posts }) => {
                     <CardImg top alt="카드이미지" src={fileUrl} />
                     <CardBody>
                       <CardTitle className="text-truncate d-flex justify-content-between">
-                        <span className="text-truncate">{title}</span>
+                        <span className="text-truncate">{title} </span>
                         <span>
                           <FontAwesomeIcon icon={faMouse} />
                           &nbsp;&nbsp;

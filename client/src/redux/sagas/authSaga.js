@@ -114,26 +114,25 @@ function* watchClearError() {
   yield takeEvery(CLEAR_ERROR_REQUEST, clearError);
 }
 
-// UserLoading
+// User Loading
 
 const userLoadingAPI = (token) => {
   console.log(token);
   const config = {
     headers: {
-      "Contetn-Type": "application/json",
+      "Content-Type": "application/json",
     },
   };
   if (token) {
     config.headers["x-auth-token"] = token;
   }
-  return axios.get("api/auth/user", config);
+  return axios.get("/api/auth/user", config);
 };
 
 function* userLoading(action) {
   try {
     console.log(action, "userLoading");
     const result = yield call(userLoadingAPI, action.payload);
-    console.log(result);
     yield put({
       type: USER_LOADING_SUCCESS,
       payload: result.data,
