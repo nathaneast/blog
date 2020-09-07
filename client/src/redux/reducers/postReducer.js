@@ -124,7 +124,6 @@ export default function (state = initialState, action) {
       return {
         ...state,
         postDetail: action.payload,
-
         loading: false,
       };
     case POST_EDIT_LOADING_FAILURE:
