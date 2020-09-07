@@ -44,11 +44,12 @@ function* watchLoadComments() {
 
 const uploadCommentsAPI = (payload) => {
   console.log(payload.id, "loadCommentAPI ID");
-  return axios.post(`/api/post/${payload.id}/comments`);
+  return axios.post(`/api/post/${payload.id}/comments`, payload);
 };
 
 function* uploadComments(action) {
   try {
+    console.log(action);
     const result = yield call(uploadCommentsAPI, action.payload);
     console.log(result, "UploadComment");
     yield put({

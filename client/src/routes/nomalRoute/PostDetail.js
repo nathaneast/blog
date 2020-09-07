@@ -18,7 +18,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import BalloonEditor from "@ckeditor/ckeditor5-editor-balloon/src/ballooneditor";
 import { editorConfiguration } from "../../components/editor/EditorConfig";
-// import Comments from "../../components/comments/Comments";
+import Comments from "../../components/comments/Comments";
 
 const PostDetail = (req) => {
   const dispatch = useDispatch();
@@ -130,14 +130,47 @@ const PostDetail = (req) => {
               disabled="true"
             />
           </Row>
+          <Row>
+            <Container className="mb-3 border border-blue rounded">
+              {Array.isArray(comments)
+                ? comments.map(
+                    ({ contents, creator, date, _id, creatorName }) => (
+                      <div key={_id}>
+                        <Row className="justify-content-between p2">
+                          <div className="font-weight-bold">
+                            {creatorName ? creatorName : creator}
+                          </div>
+                          <div className="text-small">
+                            <span className="font-weight-bold">
+                              {date.split(" ")[0]}
+                            </span>
+                            <span className="font-weight-light">
+                              {" "}
+                              {date.split(" ")[1]}
+                            </span>
+                          </div>
+                        </Row>
+                        <Row className="p-2">
+                          <div>{contents}</div>
+                        </Row>
+                        <hr />
+                      </div>
+                    )
+                  )
+                : "Creator"}
+              <Comments
+                id={req.match.params.id}
+                userId={userId}
+                userName={userName}
+              />
+            </Container>
+          </Row>
         </>
       ) : (
         <h1>hi</h1>
       )}
     </>
   );
-
-  console.log("postDetail req", req);
 
   return (
     <div>

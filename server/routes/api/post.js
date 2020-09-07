@@ -83,7 +83,6 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
     console.log(findResult, "Find Result!!!!", isNullOrUndefined(findResult));
 
     if (isNullOrUndefined(findResult)) {
-      console.log(findResult, "카테고리 없음");
       const newCategory = await Category.create({
         categoryName: category,
       });
@@ -99,7 +98,6 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
         },
       });
     } else {
-      console.log(findResult, "카테고리 있음");
       await Category.findByIdAndUpdate(findResult._id, {
         $push: { posts: newPost._id },
       });
@@ -157,7 +155,6 @@ router.get("/:id/comments", async (req, res) => {
 });
 
 router.post("/:id/comments", async (req, res, next) => {
-  console.log(req, "comments");
   const newComment = await Comment.create({
     contents: req.body.contents,
     creator: req.body.userId,
