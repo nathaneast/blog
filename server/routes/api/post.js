@@ -1,9 +1,13 @@
 import express from "express";
 
+// Model
 import Post from "../../models/post";
 import User from "../../models/user";
 import Category from "../../models/category";
+import Comment from "../../models/comment";
+import "@babel/polyfill";
 import auth from "../../middleware/auth";
+import moment from "moment";
 
 const router = express.Router();
 
@@ -35,7 +39,7 @@ const uploadS3 = multer({
 });
 
 // @route     POST api/post/image
-// @desc      Creact a Post
+// @desc      Create a Post
 // @access    Private
 
 router.post("/image", uploadS3.array("upload", 5), async (req, res, next) => {
@@ -55,17 +59,18 @@ router.get("/", async (req, res) => {
   res.json(postFindResult);
 });
 
-// @route     POST api/post
-// @desc      Create a Post
-// @access    Private
+// @route    POST api/post
+// @desc     Create a Post
+// @access   Private
 
 router.post("/", auth, uploadS3.none(), async (req, res, next) => {
   try {
-    console.log(req, "req");
-    const { title, content, fileUrl, category } = req.body;
+    console.log(req.body, "req_body");
+    console.log(req.user, "req_user_id");
+    const { title, contents, fileUrl, category } = req.body;
     const newPost = await Post.create({
       title,
-      content,
+      contents,
       fileUrl,
       creator: req.user.id,
       date: moment().format("YYYY-MM-DD hh:mm:ss"),
@@ -75,16 +80,17 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
       categoryName: category,
     });
 
-    console.log(findResult, " Find Result!");
+    console.log(findResult, "Find Result!!!!", isNullOrUndefined(findResult));
 
     if (isNullOrUndefined(findResult)) {
+      console.log(findResult, "카테고리 없음");
       const newCategory = await Category.create({
         categoryName: category,
       });
       await Post.findByIdAndUpdate(newPost._id, {
         $push: { category: newCategory._id },
       });
-      await Category.findByIdAndUpdate(newCategory_.id, {
+      await Category.findByIdAndUpdate(newCategory._id, {
         $push: { posts: newPost._id },
       });
       await User.findByIdAndUpdate(req.user.id, {
@@ -93,6 +99,7 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
         },
       });
     } else {
+      console.log(findResult, "카테고리 있음");
       await Category.findByIdAndUpdate(findResult._id, {
         $push: { posts: newPost._id },
       });
@@ -105,27 +112,78 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
         },
       });
     }
-    res.json(newPost);
     return res.redirect(`/api/post/${newPost._id}`);
   } catch (e) {
     console.log(e);
   }
 });
 
-// @route     POST api/post/:id
-// @desc      Detail Post
-// @access    Public
+// @route    POST api/post/:id
+// @desc     Detail Post
+// @access   Public
 
 router.get("/:id", async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id)
-      .popuplate("creator", "name")
-      .popuplate({
-        path: "category",
-        select: "categoryName",
-      });
+      .populate("creator", "name")
+      .populate({ path: "category", select: "categoryName" });
+    post.views += 1;
+    post.save();
+    console.log(post);
+    res.json(post);
   } catch (e) {
     console.error(e);
+    next(e);
+  }
+});
+
+// [Comments Route]
+
+// @route Get api/post/:id/comments
+// @desc  Get All Comments
+// @access public
+
+router.get("/:id/comments", async (req, res) => {
+  try {
+    const comment = await Post.findById(req.params.id).populate({
+      path: "comments",
+    });
+    const result = comment.comments;
+    console.log(result, "comment load");
+    res.json(result);
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+router.post("/:id/comments", async (req, res, next) => {
+  console.log(req, "comments");
+  const newComment = await Comment.create({
+    contents: req.body.contents,
+    creator: req.body.userId,
+    creatorName: req.body.userName,
+    post: req.body.id,
+    date: moment().format("YYYY-MM-DD hh:mm:ss"),
+  });
+  console.log(newComment, "newComment");
+
+  try {
+    await Post.findByIdAndUpdate(req.body.id, {
+      $push: {
+        comments: newComment._id,
+      },
+    });
+    await User.findByIdAndUpdate(req.body.userId, {
+      $push: {
+        comments: {
+          post_id: req.body.id,
+          comment_id: newComment._id,
+        },
+      },
+    });
+    res.json(newComment);
+  } catch (e) {
+    console.log(e);
     next(e);
   }
 });

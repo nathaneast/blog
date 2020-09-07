@@ -11,21 +11,28 @@ import {
 } from "reactstrap";
 import CKEditor from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-editor-classic/src/classiceditor";
-
 import { editorConfiguration } from "../../components/editor/EditorConfig";
-import MyInit from "../../components/editor/UploadAdapter";
-import dotenv from "dotenv";
+import Myinit from "../../components/editor/UploadAdapter";
 import { POST_UPLOADING_REQUEST } from "../../redux/types";
+
+import dotenv from "dotenv";
 dotenv.config();
 
 const PostWrite = () => {
   const { isAuthenticated } = useSelector((state) => state.auth);
-  const [form, setValues] = useState({
-    title: "",
-    contents: "",
-    fileUrl: "",
-  });
+  const [form, setValues] = useState({ title: "", contents: "", fileUrl: "" });
   const dispatch = useDispatch();
+
+  const onSubmit = async (e) => {
+    await e.preventDefault();
+    const { title, contents, fileUrl, category } = form;
+    const token = localStorage.getItem("token");
+    const body = { title, contents, fileUrl, category, token };
+    dispatch({
+      type: POST_UPLOADING_REQUEST,
+      payload: body,
+    });
+  };
 
   const onChange = (e) => {
     setValues({
@@ -62,7 +69,7 @@ const PostWrite = () => {
         result_Img_Url = data.substring(whereImg_start + 10, whereImg_end + 3);
       }
 
-      console.log(result_Img_Url, "result img url");
+      console.log(result_Img_Url, "result_Img_Url");
       setValues({
         ...form,
         fileUrl: result_Img_Url,
@@ -75,17 +82,6 @@ const PostWrite = () => {
         contents: data,
       });
     }
-  };
-
-  const onSubmit = async (e) => {
-    await e.preventDefault();
-    const { title, contents, fileUrl, category } = form;
-    const token = localStorage.getItem("token");
-    const body = { title, contents, fileUrl, category, token };
-    dispatch({
-      type: POST_UPLOADING_REQUEST,
-      payload: body,
-    });
   };
 
   return (
@@ -117,7 +113,7 @@ const PostWrite = () => {
             <CKEditor
               editor={ClassicEditor}
               config={editorConfiguration}
-              onInit={MyInit}
+              onInit={Myinit}
               onBlur={getDataFromCKEditor}
             />
             <Button

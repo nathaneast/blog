@@ -1,25 +1,32 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Helmet } from "react-helmet";
-import { Row, Col, Button } from "reactstrap";
-import { Link } from "react-router-dom";
-import CKEditor from "@ckeditor/ckeditor5-react";
-
 import {
   POST_DETAIL_LOADING_REQUEST,
   POST_DELETE_REQUEST,
   USER_LOADING_REQUEST,
 } from "../../redux/types";
+import { Button, Row, Col, Container } from "reactstrap";
+import { Link } from "react-router-dom";
+import CKEditor from "@ckeditor/ckeditor5-react";
 import { GrowingSpinner } from "../../components/spinner/Spinner";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPencilAlt,
+  faCommentDots,
+  faMouse,
+} from "@fortawesome/free-solid-svg-icons";
+import BalloonEditor from "@ckeditor/ckeditor5-editor-balloon/src/ballooneditor";
+import { editorConfiguration } from "../../components/editor/EditorConfig";
+// import Comments from "../../components/comments/Comments";
 
 const PostDetail = (req) => {
   const dispatch = useDispatch();
-  const { postDetail, creatorId, loading, title } = useSelector(
+  const { postDetail, creatorId, title, loading } = useSelector(
     (state) => state.post
   );
   const { userId, userName } = useSelector((state) => state.auth);
-
-  console.log(req);
+  const { comments } = useSelector((state) => state.comment);
 
   useEffect(() => {
     dispatch({
@@ -30,7 +37,7 @@ const PostDetail = (req) => {
       type: USER_LOADING_REQUEST,
       payload: localStorage.getItem("token"),
     });
-  }, []);
+  }, [dispatch, req.match.params.id]);
 
   const onDeleteClick = () => {
     dispatch({
@@ -59,7 +66,7 @@ const PostDetail = (req) => {
           </Link>
         </Col>
         <Col className="col-md-3">
-          <Button className="btn-danger btn-block" onClick={onDeleteClick}>
+          <Button className="btn-block btn-danger" onClick={onDeleteClick}>
             Delete
           </Button>
         </Col>
@@ -70,7 +77,7 @@ const PostDetail = (req) => {
   const HomeButton = (
     <>
       <Row className="d-flex justify-content-center pb-3">
-        <Col className="col-sm-12 col-md3 ">
+        <Col className="col-sm-12 com-md-3">
           <Link to="/" className="btn btn-primary btn-block">
             Home
           </Link>
@@ -79,7 +86,58 @@ const PostDetail = (req) => {
     </>
   );
 
-  const Body = <>{userId === creatorId ? EditButton : HomeButton}</>;
+  const Body = (
+    <>
+      {userId === creatorId ? EditButton : HomeButton}
+      <Row className="border-bottom border-top border-primary p-3 mb-3 d-flex justify-content-between">
+        {(() => {
+          if (postDetail && postDetail.creator) {
+            return (
+              <>
+                <div className="font-weight-bold text-big">
+                  <span className="mr-3">
+                    <Button color="info">
+                      {postDetail.category.categoryName}
+                    </Button>
+                  </span>
+                  {postDetail.title}
+                </div>
+                <div className="align-self-end">{postDetail.creator.name}</div>
+              </>
+            );
+          }
+        })()}
+      </Row>
+      {postDetail && postDetail.comments ? (
+        <>
+          <div className="d-flex justify-content-end align-items-baseline small">
+            <FontAwesomeIcon icon={faPencilAlt} />
+            &nbsp;
+            <span> {postDetail.date}</span>
+            &nbsp;&nbsp;
+            <FontAwesomeIcon icon={faCommentDots} />
+            &nbsp;
+            <span>{postDetail.comments.length}</span>
+            &nbsp;&nbsp;
+            <FontAwesomeIcon icon={faMouse} />
+            <span>{postDetail.views}</span>
+          </div>
+          <Row className="mb-3">
+            <CKEditor
+              editor={BalloonEditor}
+              data={postDetail.contents}
+              config={editorConfiguration}
+              disabled="true"
+            />
+          </Row>
+        </>
+      ) : (
+        <h1>hi</h1>
+      )}
+    </>
+  );
+
+  console.log("postDetail req", req);
 
   return (
     <div>

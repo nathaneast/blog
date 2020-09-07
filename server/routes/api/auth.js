@@ -5,20 +5,25 @@ import auth from "../../middleware/auth";
 import config from "../../config/index";
 const { JWT_SECRET } = config;
 
+// Model
 import User from "../../models/user";
 
 const router = express.Router();
 
+// @route    POST  api/auth
+// @desc     Auth  user
+// @access   Public
 router.post("/", (req, res) => {
   const { email, password } = req.body;
 
+  // Simple Validation
   if (!email || !password) {
-    return res.status(400).json({ msg: "모든 필드를 채워 주세요" });
+    return res.status(400).json({ msg: "모든 필드를 채워주세요" });
   }
-
+  // Check for existing user
   User.findOne({ email }).then((user) => {
     if (!user) return res.status(400).json({ msg: "유저가 존재하지 않습니다" });
-
+    // Validate password
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (!isMatch)
         return res.status(400).json({ msg: "비밀번호가 일치하지 않습니다" });

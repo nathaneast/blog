@@ -7,7 +7,7 @@ const PostSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
-  content: {
+  contents: {
     type: String,
     required: true,
   },
@@ -19,13 +19,13 @@ const PostSchema = new mongoose.Schema({
     type: String,
     default: "https://source.unsplash.com/random/301x201",
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "category",
-  },
   date: {
     type: String,
     default: moment().format("YYYY-MM-DD hh:mm:ss"),
+  },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "category",
   },
   comments: [
     {

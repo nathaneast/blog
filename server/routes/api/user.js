@@ -3,11 +3,17 @@ import bcrypt from "bcryptjs";
 
 import jwt from "jsonwebtoken";
 import config from "../../config/index";
+import auth from "../../middleware/auth";
 const { JWT_SECRET } = config;
 
+// Model
 import User from "../../models/user";
 
 const router = express.Router();
+
+// @routes     GET api/user
+// @desc       Get all user
+// @access     public
 
 router.get("/", async (req, res) => {
   try {
@@ -20,17 +26,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+// @routes     POST api/user
+// @desc       Register  user
+// @access     public
+
 router.post("/", (req, res) => {
   console.log(req);
   const { name, email, password } = req.body;
 
+  // Simple validation
   if (!name || !email || !password) {
-    return res.status(400).json({ msg: "모든 필드를 입력 해주세요" });
+    return res.status(400).json({ msg: "모든 필드를 채워주세요" });
   }
-
+  // Check for existing user
   User.findOne({ email }).then((user) => {
     if (user) {
-      return res.status(400).json({ msg: "이미 가입된 유저가 존재 합니다" });
+      return res.status(400).json({ msg: "이미 가입된 유저가 존재합니다" });
     }
     const newUser = new User({
       name,
