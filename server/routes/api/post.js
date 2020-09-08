@@ -231,7 +231,7 @@ router.delete("/:id", auth, async (req, res) => {
 
 router.get("/:id/edit", auth, async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id).pupulate("creator", "name");
+    const post = await Post.findById(req.params.id).populate("creator", "name");
     res.json(post);
   } catch (e) {
     console.error(e);
@@ -257,6 +257,25 @@ router.post("/:id/edit", auth, async (req, res, next) => {
     );
     console.log(modified_post, "edit modified");
     res.redirect(`/api/post/${modified_post.id}`);
+  } catch (e) {
+    console.log(e);
+    next(e);
+  }
+});
+
+router.get("/category/:categoryName", async (req, res, next) => {
+  try {
+    const result = await Category.findOne(
+      {
+        categoryName: {
+          $regex: req.params.categoryName,
+          $options: "i",
+        },
+      },
+      "posts"
+    ).populate({ path: "posts" });
+    console.log(result, "Category Find result");
+    res.send(result);
   } catch (e) {
     console.log(e);
     next(e);
