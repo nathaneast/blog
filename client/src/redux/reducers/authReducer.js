@@ -8,12 +8,15 @@ const {
   LOGOUT_REQUEST,
   LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
-  USER_LOADING_REQUEST,
-  USER_LOADING_SUCCESS,
-  USER_LOADING_FAILURE,
   REGISTER_REQUEST,
   REGISTER_SUCCESS,
   REGISTER_FAILURE,
+  USER_LOADING_REQUEST,
+  USER_LOADING_SUCCESS,
+  USER_LOADING_FAILURE,
+  PASSWORD_EDIT_UPLOADING_REQUEST,
+  PASSWORD_EDIT_UPLOADING_SUCCESS,
+  PASSWORD_EDIT_UPLOADING_FAILURE,
 } = require("../types");
 
 const initialState = {
@@ -24,8 +27,9 @@ const initialState = {
   userId: "",
   userName: "",
   userRole: "",
-  userMsg: "",
+  errorMsg: "",
   successMsg: "",
+  previousMatchMsg: "",
 };
 
 const authReducer = (state = initialState, action) => {
@@ -50,16 +54,6 @@ const authReducer = (state = initialState, action) => {
         userRole: action.payload.user.role,
         errorMsg: "",
       };
-    case LOGOUT_SUCCESS:
-      return {
-        token: null,
-        user: null,
-        userId: null,
-        isAuthenticated: false,
-        isLoading: false,
-        userRole: null,
-        errorMsg: "",
-      };
     case REGISTER_FAILURE:
     case LOGIN_FAILURE:
     case LOGOUT_FAILURE:
@@ -75,20 +69,16 @@ const authReducer = (state = initialState, action) => {
         userRole: null,
         errorMsg: action.payload.data.msg,
       };
-    case CLEAR_ERROR_REQUEST:
+    case LOGOUT_SUCCESS:
+      localStorage.removeItem("token");
       return {
-        ...state,
-        errorMsg: null,
-      };
-    case CLEAR_ERROR_SUCCESS:
-      return {
-        ...state,
-        errorMsg: null,
-      };
-    case CLEAR_ERROR_FAILURE:
-      return {
-        ...state,
-        errorMsg: null,
+        token: null,
+        user: null,
+        userId: null,
+        isAuthenticated: false,
+        isLoading: false,
+        userRole: null,
+        errorMsg: "",
       };
     case USER_LOADING_REQUEST:
       return {
@@ -108,9 +98,47 @@ const authReducer = (state = initialState, action) => {
     case USER_LOADING_FAILURE:
       return {
         ...state,
+        user: null,
         isAuthenticated: false,
         isLoading: false,
         userRole: "",
+      };
+    case PASSWORD_EDIT_UPLOADING_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case PASSWORD_EDIT_UPLOADING_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        successMsg: action.payload.success_msg,
+        errorMsg: "",
+        previousMatchMsg: "",
+      };
+    case PASSWORD_EDIT_UPLOADING_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        successMsg: "",
+        errorMsg: action.payload.data.fail_msg,
+        previousMatchMsg: action.payload.data.match_msg,
+      };
+    case CLEAR_ERROR_REQUEST:
+      return {
+        ...state,
+      };
+    case CLEAR_ERROR_SUCCESS:
+      return {
+        ...state,
+        errorMsg: "",
+        previousMatchMsg: "",
+      };
+    case CLEAR_ERROR_FAILURE:
+      return {
+        ...state,
+        errorMsg: "Clear Error Fail",
+        previousMatchMsg: "Clear Error Fail",
       };
     default:
       return state;
